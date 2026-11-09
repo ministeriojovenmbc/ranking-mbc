@@ -83,7 +83,7 @@ button{cursor:pointer}
 .area[aria-current="true"]{border-color:rgba(242,201,76,.65);box-shadow:0 0 0 1px rgba(242,201,76,.35),0 30px 60px -30px rgba(242,201,76,.35)}
 .area .logo{height:118px;display:grid;place-items:center}
 .area .logo img{max-height:118px;max-width:160px;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55))}
-.area h3{font-size:1.45rem;font-weight:800;margin-top:6px}
+.area h3{font-size:1.3rem;font-weight:800;margin-top:6px;max-width:100%}
 .area .lead-club{font-size:.92rem;color:var(--night-muted);min-height:2.7em;overflow-wrap:anywhere}
 .area .lead-club b{display:block;color:var(--night-ink);font-weight:600}
 .area .go{font-size:.9rem;font-weight:600;color:var(--gold-hi)}
@@ -205,6 +205,8 @@ footer .brand-mundo{height:78px;width:auto;display:block}
 footer .foot-text{display:grid;gap:4px;text-align:right}
 footer .foot-text p:first-child{color:var(--night-ink);font-weight:600}
 footer .copy{color:var(--night-muted)}
+footer .credit{color:var(--night-muted);font-size:.8rem}
+footer .credit b{color:var(--gold-hi);font-weight:600}
 footer .contact{order:3;width:100%;display:grid;gap:6px;justify-items:center;text-align:center;border-top:1px solid var(--night-hair);padding-top:26px;margin-top:6px}
 footer .contact-k{font-family:var(--f-head);font-weight:700;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-hi)}
 footer .contact-n{color:var(--night-ink);font-weight:600}
@@ -251,7 +253,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .area{padding:20px 12px 16px;gap:6px}
   .area .logo{height:84px}
   .area .logo img{max-height:84px;max-width:110px}
-  .area h3{font-size:1.1rem}
+  .area h3{font-size:1rem}
   .pod{padding:22px 16px}
   .pod h3{font-size:1.2rem}
   .pod.p1 h3{font-size:1.45rem}
@@ -268,10 +270,10 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .adm{padding:6px 10px;font-size:.72rem}
   .hero .wrap{padding-block:44px 36px;gap:30px}
   .areas{gap:8px}
-  .area{border-radius:18px;padding:14px 6px 12px;gap:4px}
+  .area{border-radius:18px;padding:14px 4px 12px;gap:4px}
   .area .logo{height:58px}
   .area .logo img{max-height:58px;max-width:76px}
-  .area h3{font-size:.8rem;letter-spacing:-.01em;margin-top:4px}
+  .area h3{font-size:min(.7rem,2.75vw);letter-spacing:-.02em;margin-top:4px}
   .area .lead-club{font-size:.64rem;min-height:3.9em;line-height:1.3}
   .area .lead-club b{font-size:.68rem}
   .area .go{font-size:.66rem}
@@ -400,6 +402,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
     <div class="foot-text">
       <p>Ministerio Joven · Misión Boliviana Central</p>
       <p class="copy">© <span id="year">2026</span> Ministerio Joven MBC. Todos los derechos reservados.</p>
+      <p class="credit">Creado por: <b>Héctor Abel Moleros Medrano</b></p>
     </div>
   </div>
 </footer>
