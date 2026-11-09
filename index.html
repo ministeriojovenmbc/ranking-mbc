@@ -362,7 +362,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
     <div class="area-head">
       <img id="areaLogo" src="" data-logo="conquistadores" alt="">
       <h2 id="areaName">Conquistadores</h2>
-      <p>Top 10 de toda la Misión Boliviana Central.</p>
+      <p id="topLead">Top 10 de toda la Misión Boliviana Central.</p>
       <div class="stats" id="stats"></div>
     </div>
     <div id="top"></div>
@@ -468,7 +468,9 @@ function render(){
   $("stats").innerHTML=[[fmt(list.length),"clubes en el ranking"],[regs+" de "+N_REG,"regiones participando"],[list[0]?fmt(list[0].puntos):"—","puntaje más alto"]]
     .map(([v,l])=>'<div class="stat"><span class="v">'+v+'</span><span class="l">'+l+'</span></div>').join("");
 
-  const top=list.slice(0,10);
+  const N=S.area==="conquistadores"?30:10; // Conquistadores muestra el Top 30; las demás Áreas, el Top 10
+  $("topLead").textContent="Top "+N+" de toda la Misión Boliviana Central.";
+  const top=list.slice(0,N);
   if(!top.length){$("top").innerHTML='<div class="empty">Aún no hay clubes de '+esc(AREAS[S.area])+' en el ranking.</div>'}
   else{
     const c1=top[0];
@@ -478,7 +480,7 @@ function render(){
       '<div class="pod-pts"><b>'+fmt(c.puntos)+'</b><span>puntos</span></div></article>':'<div class="pod-empty"></div>';
     let h='<div class="podium">'+pod(top[1],1)+pod(top[0],0)+pod(top[2],2)+'</div>';
     const rest=top.slice(3),max=c1.puntos||1;
-    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top 10 de la Misión</span><span>Puntos</span></div>'+rest.map((c,i)=>row(c,i+4,max)).join("")+'</div>';
+    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rest.map((c,i)=>row(c,i+4,max)).join("")+'</div>';
     $("top").innerHTML=h;
   }
 
