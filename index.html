@@ -140,7 +140,10 @@ button{cursor:pointer}
 @keyframes swap{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* Podio de los 3 mejores */
-.podium{margin-top:48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:end}
+.podium{margin-top:48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:stretch}
+/* Escalones del podio: todas terminan a la misma altura abajo y el 1.º siempre empieza más arriba */
+.podium .pod.p2{margin-top:36px}
+.podium .pod.p3{margin-top:52px}
 .pod{background:var(--card);border:1px solid var(--hair);border-radius:var(--r-xl);padding:28px 26px;display:grid;gap:10px;align-content:start;min-width:0;position:relative;overflow:hidden}
 .pod::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--m)}
 .pod.p1{--m:var(--gold);padding-block:40px 34px;box-shadow:0 30px 60px -36px rgba(200,150,30,.55)}
@@ -222,7 +225,9 @@ button{cursor:pointer}
 .sec-title h2{font-size:clamp(2rem,5vw,3.2rem);font-weight:900}
 .sec-title p{color:var(--muted);font-size:1.1rem}
 .regions,.reg-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.reg-podium{align-items:end;margin-bottom:14px}
+.reg-podium{align-items:stretch;margin-bottom:14px}
+.reg-podium .reg.rp2{margin-top:30px}
+.reg-podium .reg.rp3{margin-top:44px}
 .reg{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-lg);padding:20px;display:grid;gap:12px;align-content:start;min-width:0;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;--m:var(--av)}
 .reg:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(0,0,0,.35)}
 .reg:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -368,6 +373,8 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .stat .v{font-size:1.35rem}
   .stat .l{font-size:.68rem;text-align:center}
   .podium{margin-top:32px;gap:6px}
+  .podium .pod.p2{margin-top:22px}
+  .podium .pod.p3{margin-top:34px}
   .pod{padding:16px 8px 14px;border-radius:16px;gap:6px;justify-items:center;text-align:center}
   .pod.p1{padding-block:24px 18px}
   .pod-top{flex-direction:column;gap:4px}
@@ -400,6 +407,8 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .sec-title p{font-size:.95rem}
   .regions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .reg-podium{gap:6px;margin-bottom:8px}
+  .reg-podium .reg.rp2{margin-top:18px}
+  .reg-podium .reg.rp3{margin-top:28px}
   .reg-podium .reg{padding:12px 8px;gap:7px;justify-items:center;text-align:center}
   .reg-podium .reg.rp1{padding-block:20px 14px}
   .reg-podium .rhead{flex-direction:column;gap:4px}
