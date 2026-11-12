@@ -582,13 +582,13 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function fmt(n){return Number(n||0).toLocaleString("es-BO")}
 function code(r){return "R"+String(r).padStart(2,"0")}
 function lugar(n){return n+(n===1||n===3?".er":".º")+" lugar"}
-/* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ cantidad de clubes (incluye los que tienen 0) */
+/* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ cantidad de clubes CON puntos (los de 0 no cuentan) */
 function regionStats(area){
   const acc={};
-  for(const c of clubs()){if(c.area!==(area||S.area))continue;const s=acc[c.region]||(acc[c.region]={total:0,n:0});s.total+=c.puntos||0;s.n++}
+  for(const c of clubs()){if(c.area!==(area||S.area))continue;const s=acc[c.region]||(acc[c.region]={total:0,n:0});s.total+=c.puntos||0;s.n++;if((c.puntos||0)>0)s.np=(s.np||0)+1}
   const regs=Object.keys(acc).map(Number);
-  for(const r of regs)acc[r].prom=Math.round(acc[r].total/acc[r].n);
-  regs.sort((a,b)=>acc[b].total/acc[b].n-acc[a].total/acc[a].n||acc[b].total-acc[a].total||a-b).forEach((r,i)=>acc[r].puesto=i+1);
+  for(const r of regs){acc[r].np=acc[r].np||0;acc[r].avg=acc[r].np?acc[r].total/acc[r].np:0;acc[r].prom=Math.round(acc[r].avg)}
+  regs.sort((a,b)=>acc[b].avg-acc[a].avg||acc[b].total-acc[a].total||a-b).forEach((r,i)=>acc[r].puesto=i+1);
   return acc;
 }
 function regLabel(r){return rname(r)+(UBIC[r]?" · "+UBIC[r]:"")}
@@ -632,7 +632,8 @@ function render(){
   const N=S.area==="conquistadores"?30:10; // Conquistadores muestra el Top 30; las demás Áreas, el Top 10
   $("topLead").textContent="Top "+N+" de toda la Misión Boliviana Central.";
   const lg=$("mvLegend");
-  if(S.prevFecha){lg.hidden=false;lg.innerHTML='<span><span class="mv up">'+ARW.up+'</span>subió</span><span><span class="mv eq">'+ARW.eq+'</span>se mantiene</span><span><span class="mv dn">'+ARW.dn+'</span>bajó</span><span>· comparado con la actualización del '+esc(new Date(S.prevFecha).toLocaleString("es-BO",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+'</span>'}
+  const PF=S.prevFecha&&typeof S.prevFecha==="object"?S.prevFecha[S.area]:S.prevFecha;
+  if(PF){lg.hidden=false;lg.innerHTML='<span><span class="mv up">'+ARW.up+'</span>subió</span><span><span class="mv eq">'+ARW.eq+'</span>se mantiene</span><span><span class="mv dn">'+ARW.dn+'</span>bajó</span><span>· comparado con la actualización del '+esc(new Date(PF).toLocaleString("es-BO",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+'</span>'}
   else lg.hidden=true;
   const top=list.slice(0,N);
   if(!top.length){$("top").innerHTML='<div class="empty">Aún no hay clubes de '+esc(AREAS[S.area])+' en el ranking.</div>'}
@@ -654,7 +655,7 @@ function render(){
     return '<button class="reg'+(ch?"":" none")+(pz&&pz<=3?" rp"+pz:"")+'" type="button" data-region="'+r+'">'+
       (st?'<div class="rhead"><span class="rmedal">'+pz+'</span><span class="rplace">'+lugar(pz)+'</span></div>':'')+
       '<div class="tn"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+
-      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts ÷ '+st.n+(st.n===1?' club':' clubes')+' de '+esc(AREAS[S.area])+'</small></div>':'')+
+      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts ÷ '+st.np+(st.np===1?' club':' clubes')+' con puntos (de '+st.n+')</small></div>':'')+
       (ch?'<div class="cl">'+trophy+'<b>'+esc(ch.nombre)+'</b></div><div class="ft"><span>'+rc.length+(rc.length===1?" club":" clubes")+'</span><span><span class="num">'+fmt(ch.puntos)+'</span> pts</span></div>'
          :'<div class="cl"><b>Sin clubes en esta Área</b></div><div class="ft"><span>0 clubes</span><span>—</span></div>')+'</button>';
   };
