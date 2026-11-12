@@ -509,7 +509,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
     <div class="sec-title">
       <div class="eyebrow" style="color:var(--gold)">20 regiones</div>
       <h2 id="h-reg">Lo mejor de cada región.</h2>
-      <p>El club que lidera cada región en <span id="regArea">Conquistadores</span>, y el puesto de cada región según el promedio de puntos de sus clubes en los 3 ministerios. Toca una región para ver su ranking completo.</p>
+      <p>El club que lidera cada región en <span id="regArea">Conquistadores</span>, y el puesto de cada región según el promedio de puntos de sus clubes en este ministerio. Toca una región para ver su ranking completo.</p>
     </div>
     <div class="reg-podium" id="regPodium"></div>
     <div class="regions" id="regions"></div>
@@ -582,10 +582,10 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function fmt(n){return Number(n||0).toLocaleString("es-BO")}
 function code(r){return "R"+String(r).padStart(2,"0")}
 function lugar(n){return n+(n===1||n===3?".er":".º")+" lugar"}
-/* Promedio regional: suma de puntos de todos los clubes de la región en los 3 ministerios ÷ cantidad de clubes */
-function regionStats(){
+/* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ cantidad de clubes (incluye los que tienen 0) */
+function regionStats(area){
   const acc={};
-  for(const c of clubs()){const s=acc[c.region]||(acc[c.region]={total:0,n:0});s.total+=c.puntos||0;s.n++}
+  for(const c of clubs()){if(c.area!==(area||S.area))continue;const s=acc[c.region]||(acc[c.region]={total:0,n:0});s.total+=c.puntos||0;s.n++}
   const regs=Object.keys(acc).map(Number);
   for(const r of regs)acc[r].prom=Math.round(acc[r].total/acc[r].n);
   regs.sort((a,b)=>acc[b].total/acc[b].n-acc[a].total/acc[a].n||acc[b].total-acc[a].total||a-b).forEach((r,i)=>acc[r].puesto=i+1);
@@ -648,13 +648,13 @@ function render(){
     $("top").innerHTML=h;
   }
 
-  const RS=regionStats();
+  const RS=regionStats(S.area);
   const regCard=r=>{
     const rc=list.filter(c=>c.region===r),ch=rc[0],st=RS[r],pz=st?st.puesto:0;
     return '<button class="reg'+(ch?"":" none")+(pz&&pz<=3?" rp"+pz:"")+'" type="button" data-region="'+r+'">'+
       (st?'<div class="rhead"><span class="rmedal">'+pz+'</span><span class="rplace">'+lugar(pz)+'</span></div>':'')+
       '<div class="tn"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+
-      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts · '+st.n+' clubes · 3 ministerios</small></div>':'')+
+      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts ÷ '+st.n+(st.n===1?' club':' clubes')+' de '+esc(AREAS[S.area])+'</small></div>':'')+
       (ch?'<div class="cl">'+trophy+'<b>'+esc(ch.nombre)+'</b></div><div class="ft"><span>'+rc.length+(rc.length===1?" club":" clubes")+'</span><span><span class="num">'+fmt(ch.puntos)+'</span> pts</span></div>'
          :'<div class="cl"><b>Sin clubes en esta Área</b></div><div class="ft"><span>0 clubes</span><span>—</span></div>')+'</button>';
   };
@@ -687,7 +687,7 @@ function renderRegion(r){
   S.openRegion=r;
   const rc=ranked(S.area).filter(c=>c.region===r);
   $("regTitle").textContent=rname(r);
-  const st=regionStats()[r];
+  const st=regionStats(S.area)[r];
   $("regSub").textContent=AREAS[S.area]+(UBIC[r]?" · "+UBIC[r]:"")+" · "+rc.length+(rc.length===1?" club":" clubes")+(st?" · "+lugar(st.puesto)+" por promedio ("+fmt(st.prom)+" pts)":"");
   $("regList").innerHTML=rc.length?'<div class="list">'+rc.map((c,i)=>row(c,i+1,rc[0].puntos||1)).join("")+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
 }
