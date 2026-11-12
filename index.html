@@ -221,17 +221,24 @@ button{cursor:pointer}
 .sec-title{text-align:center;display:grid;gap:10px;margin-bottom:36px}
 .sec-title h2{font-size:clamp(2rem,5vw,3.2rem);font-weight:900}
 .sec-title p{color:var(--muted);font-size:1.1rem}
-.regions{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.reg{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-lg);padding:20px;display:grid;gap:12px;align-content:start;min-width:0;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
+.regions,.reg-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.reg-podium{align-items:end;margin-bottom:14px}
+.reg{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-lg);padding:20px;display:grid;gap:12px;align-content:start;min-width:0;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;--m:var(--av)}
 .reg:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(0,0,0,.35)}
 .reg:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.reg .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .reg .tn{display:grid;gap:2px;min-width:0}
-.rplace{flex:none;font-family:var(--f-head);font-weight:800;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--card-2);border:1px solid var(--hair);border-radius:999px;padding:4px 9px;white-space:nowrap}
-.reg.r1 .rplace{color:var(--gold-ink);background:radial-gradient(circle at 30% 25%,#FFF6D2,#F2CD5C 45%,#C8961E);border-color:#C8961E}
-.reg.r2 .rplace{color:#2B2F36;background:linear-gradient(180deg,#F3F5F8,#B7BCC5);border-color:#9AA1AC}
-.reg.r3 .rplace{color:#3B1E0C;background:linear-gradient(180deg,#F6D6BE,#C47A47);border-color:#B06A3B}
-.reg.r1{border-color:var(--gold-line);background:linear-gradient(180deg,var(--gold-tint),var(--card) 55%)}
+.rhead{display:flex;align-items:center;gap:10px}
+.rmedal{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;font-family:var(--f-head);font-weight:900;font-size:.95rem;color:var(--av);background:var(--card-2);border:2px solid var(--av)}
+.rplace{font-family:var(--f-head);font-weight:900;font-size:1.15rem;letter-spacing:-.01em;color:var(--ink)}
+.reg.rp1,.reg.rp2,.reg.rp3{box-shadow:0 26px 50px -34px rgba(0,0,0,.35)}
+.reg.rp1::before,.reg.rp2::before,.reg.rp3::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--m)}
+.reg.rp1{--m:var(--gold);border-color:var(--gold-line);background:linear-gradient(180deg,var(--gold-tint),var(--card) 55%);padding-block:30px 22px}
+.reg.rp2{--m:var(--silver);border-color:var(--silver-line);background:linear-gradient(180deg,var(--silver-tint),var(--card) 55%)}
+.reg.rp3{--m:var(--bronze);border-color:var(--bronze-line);background:linear-gradient(180deg,var(--bronze-tint),var(--card) 55%)}
+.reg.rp1 .rmedal,.reg.rp2 .rmedal,.reg.rp3 .rmedal{border:0;color:#fff;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.55),transparent 45%),var(--m);width:44px;height:44px;font-size:1.2rem}
+.reg.rp1 .rmedal{width:52px;height:52px;font-size:1.45rem}
+.reg.rp1 .rplace{font-size:1.45rem}
+.reg.rp1 .rname{font-size:1.35rem}
 .ravg{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:0 8px;background:var(--card-2);border:1px solid var(--hair);border-radius:12px;padding:8px 10px}
 .ravg span{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .ravg b{font-family:var(--f-head);font-weight:800;font-size:1rem;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -392,10 +399,23 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .sec-title{margin-bottom:24px}
   .sec-title p{font-size:.95rem}
   .regions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .reg-podium{gap:6px;margin-bottom:8px}
+  .reg-podium .reg{padding:12px 8px;gap:7px;justify-items:center;text-align:center}
+  .reg-podium .reg.rp1{padding-block:20px 14px}
+  .reg-podium .rhead{flex-direction:column;gap:4px}
+  .reg-podium .rmedal{width:32px;height:32px;font-size:.9rem}
+  .reg-podium .reg.rp1 .rmedal{width:40px;height:40px;font-size:1.1rem}
+  .reg-podium .rplace,.reg-podium .reg.rp1 .rplace{font-size:.78rem}
+  .reg-podium .rname,.reg-podium .reg.rp1 .rname{font-size:.85rem}
+  .reg-podium .ravg{grid-template-columns:1fr;justify-items:center;padding:6px 4px;width:100%;box-sizing:border-box}
+  .reg-podium .ravg small{display:none}
+  .reg-podium .cl{flex-direction:column;align-items:center;gap:2px}
+  .reg-podium .cl b{font-size:.72rem}
+  .reg-podium .ft{display:none}
+  .rplace{font-size:.92rem}
+  .rmedal{width:28px;height:28px;font-size:.8rem}
   .reg{padding:12px;gap:8px;border-radius:16px}
   .reg .rname{font-size:.95rem}
-  .reg .top{flex-direction:column;gap:6px}
-  .rplace{font-size:.6rem;padding:3px 7px}
   .ravg{padding:6px 8px}
   .ravg span{font-size:.58rem}
   .ravg b{font-size:.85rem}
@@ -491,6 +511,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
       <h2 id="h-reg">Lo mejor de cada región.</h2>
       <p>El club que lidera cada región en <span id="regArea">Conquistadores</span>, y el puesto de cada región según el promedio de puntos de sus clubes en los 3 ministerios. Toca una región para ver su ranking completo.</p>
     </div>
+    <div class="reg-podium" id="regPodium"></div>
     <div class="regions" id="regions"></div>
   </section>
 </main>
@@ -628,17 +649,21 @@ function render(){
   }
 
   const RS=regionStats();
-  let rh="";
-  for(let r=1;r<=N_REG;r++){
-    const rc=list.filter(c=>c.region===r),ch=rc[0],st=RS[r];
-    rh+='<button class="reg'+(ch?"":" none")+(st&&st.puesto<=3?" r"+st.puesto:"")+'" type="button" data-region="'+r+'"><div class="top"><div class="tn"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+(st?'<span class="rplace" title="Puesto por promedio de los 3 ministerios">'+lugar(st.puesto)+'</span>':'')+'</div>'+
+  const regCard=r=>{
+    const rc=list.filter(c=>c.region===r),ch=rc[0],st=RS[r],pz=st?st.puesto:0;
+    return '<button class="reg'+(ch?"":" none")+(pz&&pz<=3?" rp"+pz:"")+'" type="button" data-region="'+r+'">'+
+      (st?'<div class="rhead"><span class="rmedal">'+pz+'</span><span class="rplace">'+lugar(pz)+'</span></div>':'')+
+      '<div class="tn"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+
       (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts · '+st.n+' clubes · 3 ministerios</small></div>':'')+
       (ch?'<div class="cl">'+trophy+'<b>'+esc(ch.nombre)+'</b></div><div class="ft"><span>'+rc.length+(rc.length===1?" club":" clubes")+'</span><span><span class="num">'+fmt(ch.puntos)+'</span> pts</span></div>'
-         :'<div class="cl"><b>Sin clubes registrados</b></div><div class="ft"><span>0 clubes</span><span>—</span></div>')+'</button>';
-  }
-  $("regions").innerHTML=rh;
+         :'<div class="cl"><b>Sin clubes en esta Área</b></div><div class="ft"><span>0 clubes</span><span>—</span></div>')+'</button>';
+  };
+  const orden=Array.from({length:N_REG},(_,i)=>i+1).sort((x,y)=>(RS[x]?RS[x].puesto:99)-(RS[y]?RS[y].puesto:99)||x-y);
+  const podio=orden.slice(0,3);
+  $("regPodium").innerHTML=podio.length===3?[podio[1],podio[0],podio[2]].map(regCard).join(""):"";
+  $("regions").innerHTML=orden.slice(podio.length===3?3:0).map(regCard).join("");
 
-  if(S.lastArea!==S.area){S.lastArea=S.area;for(const el of [$("top"),$("regions")]){el.classList.remove("swap");void el.offsetWidth;el.classList.add("swap")}}
+  if(S.lastArea!==S.area){S.lastArea=S.area;for(const el of [$("top"),$("regions"),$("regPodium")]){el.classList.remove("swap");void el.offsetWidth;el.classList.add("swap")}}
   
   if(!$("regionOverlay").hidden&&S.openRegion)renderRegion(S.openRegion);
 }
@@ -680,7 +705,7 @@ for(const t of document.querySelectorAll(".area"))t.addEventListener("click",()=
 window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(AREAS[h]&&h!==S.area)setArea(h,false)});
 {const h=location.hash.slice(1);if(AREAS[h])S.area=h;else{try{const v=localStorage.getItem("mbc-area");if(AREAS[v])S.area=v}catch(e){}}}
 
-$("regions").addEventListener("click",e=>{const b=e.target.closest("[data-region]");if(!b)return;renderRegion(+b.dataset.region);openOverlay("regionOverlay")});
+for(const el of [$("regions"),$("regPodium")])el.addEventListener("click",e=>{const b=e.target.closest("[data-region]");if(!b)return;renderRegion(+b.dataset.region);openOverlay("regionOverlay")});
 function openOverlay(id){$(id).hidden=false;document.body.style.overflow="hidden";$(id).querySelector("[data-close]").focus()}
 function closeOverlay(id){$(id).hidden=true;document.body.style.overflow="";if(id==="regionOverlay")S.openRegion=null}
 for(const o of document.querySelectorAll(".overlay"))o.addEventListener("click",e=>{if(e.target===o||e.target.closest("[data-close]"))closeOverlay(o.id)});
