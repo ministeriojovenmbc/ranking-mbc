@@ -225,7 +225,17 @@ button{cursor:pointer}
 .reg{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--hair);border-radius:var(--r-lg);padding:20px;display:grid;gap:12px;align-content:start;min-width:0;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
 .reg:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(0,0,0,.35)}
 .reg:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.reg .top{display:grid;gap:2px}
+.reg .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.reg .tn{display:grid;gap:2px;min-width:0}
+.rplace{flex:none;font-family:var(--f-head);font-weight:800;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--card-2);border:1px solid var(--hair);border-radius:999px;padding:4px 9px;white-space:nowrap}
+.reg.r1 .rplace{color:var(--gold-ink);background:radial-gradient(circle at 30% 25%,#FFF6D2,#F2CD5C 45%,#C8961E);border-color:#C8961E}
+.reg.r2 .rplace{color:#2B2F36;background:linear-gradient(180deg,#F3F5F8,#B7BCC5);border-color:#9AA1AC}
+.reg.r3 .rplace{color:#3B1E0C;background:linear-gradient(180deg,#F6D6BE,#C47A47);border-color:#B06A3B}
+.reg.r1{border-color:var(--gold-line);background:linear-gradient(180deg,var(--gold-tint),var(--card) 55%)}
+.ravg{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:0 8px;background:var(--card-2);border:1px solid var(--hair);border-radius:12px;padding:8px 10px}
+.ravg span{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ravg b{font-family:var(--f-head);font-weight:800;font-size:1rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.ravg small{grid-column:1/-1;font-size:.7rem;color:var(--muted)}
 .reg .code{font-family:var(--f-head);font-weight:800;font-size:.85rem;letter-spacing:.08em;color:var(--accent)}
 .reg .rname{font-family:var(--f-head);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;color:var(--av);overflow-wrap:anywhere}
 .reg .ubic{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -384,6 +394,12 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .regions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .reg{padding:12px;gap:8px;border-radius:16px}
   .reg .rname{font-size:.95rem}
+  .reg .top{flex-direction:column;gap:6px}
+  .rplace{font-size:.6rem;padding:3px 7px}
+  .ravg{padding:6px 8px}
+  .ravg span{font-size:.58rem}
+  .ravg b{font-size:.85rem}
+  .ravg small{font-size:.6rem}
   .reg .ubic{font-size:.6rem}
   .reg .cl{gap:6px}
   .reg .cl svg{width:18px;height:18px;margin-top:1px}
@@ -473,7 +489,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
     <div class="sec-title">
       <div class="eyebrow" style="color:var(--gold)">20 regiones</div>
       <h2 id="h-reg">Lo mejor de cada región.</h2>
-      <p>El club que lidera cada región en <span id="regArea">Conquistadores</span>. Toca una región para ver su ranking completo.</p>
+      <p>El club que lidera cada región en <span id="regArea">Conquistadores</span>, y el puesto de cada región según el promedio de puntos de sus clubes en los 3 ministerios. Toca una región para ver su ranking completo.</p>
     </div>
     <div class="regions" id="regions"></div>
   </section>
@@ -544,6 +560,16 @@ function defaultRegions(){return Array.from({length:N_REG},(_,i)=>"Región "+(i+
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmt(n){return Number(n||0).toLocaleString("es-BO")}
 function code(r){return "R"+String(r).padStart(2,"0")}
+function lugar(n){return n+(n===1||n===3?".er":".º")+" lugar"}
+/* Promedio regional: suma de puntos de todos los clubes de la región en los 3 ministerios ÷ cantidad de clubes */
+function regionStats(){
+  const acc={};
+  for(const c of clubs()){const s=acc[c.region]||(acc[c.region]={total:0,n:0});s.total+=c.puntos||0;s.n++}
+  const regs=Object.keys(acc).map(Number);
+  for(const r of regs)acc[r].prom=Math.round(acc[r].total/acc[r].n);
+  regs.sort((a,b)=>acc[b].total/acc[b].n-acc[a].total/acc[a].n||acc[b].total-acc[a].total||a-b).forEach((r,i)=>acc[r].puesto=i+1);
+  return acc;
+}
 function regLabel(r){return rname(r)+(UBIC[r]?" · "+UBIC[r]:"")}
 function rname(r){return S.regiones[r-1]||("Región "+r)}
 function slug(s){return String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60)||"club"}
@@ -601,10 +627,12 @@ function render(){
     $("top").innerHTML=h;
   }
 
+  const RS=regionStats();
   let rh="";
   for(let r=1;r<=N_REG;r++){
-    const rc=list.filter(c=>c.region===r),ch=rc[0];
-    rh+='<button class="reg'+(ch?"":" none")+'" type="button" data-region="'+r+'"><div class="top"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+
+    const rc=list.filter(c=>c.region===r),ch=rc[0],st=RS[r];
+    rh+='<button class="reg'+(ch?"":" none")+(st&&st.puesto<=3?" r"+st.puesto:"")+'" type="button" data-region="'+r+'"><div class="top"><div class="tn"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+(st?'<span class="rplace" title="Puesto por promedio de los 3 ministerios">'+lugar(st.puesto)+'</span>':'')+'</div>'+
+      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts · '+st.n+' clubes · 3 ministerios</small></div>':'')+
       (ch?'<div class="cl">'+trophy+'<b>'+esc(ch.nombre)+'</b></div><div class="ft"><span>'+rc.length+(rc.length===1?" club":" clubes")+'</span><span><span class="num">'+fmt(ch.puntos)+'</span> pts</span></div>'
          :'<div class="cl"><b>Sin clubes registrados</b></div><div class="ft"><span>0 clubes</span><span>—</span></div>')+'</button>';
   }
@@ -634,7 +662,8 @@ function renderRegion(r){
   S.openRegion=r;
   const rc=ranked(S.area).filter(c=>c.region===r);
   $("regTitle").textContent=rname(r);
-  $("regSub").textContent=AREAS[S.area]+(UBIC[r]?" · "+UBIC[r]:"")+" · "+rc.length+(rc.length===1?" club":" clubes");
+  const st=regionStats()[r];
+  $("regSub").textContent=AREAS[S.area]+(UBIC[r]?" · "+UBIC[r]:"")+" · "+rc.length+(rc.length===1?" club":" clubes")+(st?" · "+lugar(st.puesto)+" por promedio ("+fmt(st.prom)+" pts)":"");
   $("regList").innerHTML=rc.length?'<div class="list">'+rc.map((c,i)=>row(c,i+1,rc[0].puntos||1)).join("")+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
 }
 
