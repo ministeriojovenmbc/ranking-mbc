@@ -600,7 +600,7 @@ function load(){
   fetch("data/rankings.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
     const lists=d.areas||{};S.clubs=[];
     for(const a of Object.keys(AREAS))(lists[a]||[]).forEach((c,i)=>S.clubs.push({...c,area:a,orden:i+1,iglesia:c.distrito||"",id:idFor(a,c.region,c.nombre),actualizado:d.actualizado||""}));
-    S.prev=d.previo||{};S.prevFecha=d.previo_fecha||"";
+    S.demo=S.clubs.length===0;S.prev=d.previo||{};S.prevFecha=d.previo_fecha||"";
     for(const a of Object.keys(AREAS))ranked(a).forEach((c,i)=>{c.pos=i+1;const p=(S.prev[a]||{})[c.region+"|"+c.nombre];c.mov=p==null?(Object.keys(S.prev[a]||{}).length?"new":null):p-c.pos});
     S.demo=S.clubs.length===0;S.offline=false;S.ready=true;render();
   }).catch(()=>{S.offline=S.demo;S.ready=true;render()});
