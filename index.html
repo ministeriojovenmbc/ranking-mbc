@@ -92,7 +92,8 @@ button{cursor:pointer}
 .events{display:grid;gap:18px}
 .ev-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-left:4px solid var(--gold-hi);background:rgba(255,255,255,.05);border-radius:0 12px 12px 0;padding:10px 16px}
 .ev-head h2{font-size:1.1rem;font-weight:800;letter-spacing:.02em;color:var(--night-ink)}
-.ev-head span{font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--night-muted)}
+.ev-head .ev-sep{color:var(--gold-hi)}
+.ev-head .ev-org{color:var(--gold-hi)}
 .ev-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .ev{display:grid;gap:10px;align-content:start;min-width:0}
 .ev-pic{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:var(--night-3);border:1px solid var(--night-hair);max-width:100%}
@@ -119,7 +120,7 @@ button{cursor:pointer}
   .ev{flex:0 0 78%;scroll-snap-align:center}
   .ev-pic h3{font-size:1.05rem}
   .ev-head h2{font-size:1rem}
-  .ev-head span{display:none}
+  .ev-head h2{font-size:.92rem}
 }
 
 /* Aviso */
@@ -413,7 +414,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
 <header class="hero" id="inicio">
   <div class="wrap">
     <section class="events" aria-labelledby="ev-title">
-      <div class="ev-head"><h2 id="ev-title">Próximos eventos</h2><span>Ministerio Joven MBC</span></div>
+      <div class="ev-head"><h2 id="ev-title">Próximos eventos <span class="ev-sep">-</span> <span class="ev-org">Misión Boliviana Central</span></h2></div>
       <div class="ev-row">
       <article class="ev" data-fecha="2026-11-14T09:00:00-04:00">
         <div class="ev-pic">
