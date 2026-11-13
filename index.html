@@ -204,6 +204,8 @@ button{cursor:pointer}
 .top10 .li .nm b{letter-spacing:-.005em}
 .update-note{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:22px;color:var(--muted);font-size:.95rem;font-weight:600;text-align:center}
 .update-note svg{width:18px;height:18px;flex:none;color:var(--accent)}
+.stars{display:inline-block;margin-left:10px;font-size:1.15em;letter-spacing:2px;line-height:1;color:#FFD400;-webkit-text-fill-color:#FFD400;text-shadow:0 1px 1px rgba(120,80,0,.35);vertical-align:-1px;white-space:nowrap}
+.pod-stars .stars{margin-left:0;font-size:1.25rem}
 .mvc{display:flex;justify-content:flex-start;align-items:center;min-width:0}
 .mv{display:inline-flex;align-items:center;gap:2px;font-family:var(--f-body);font-weight:800;line-height:1;white-space:nowrap;-webkit-text-fill-color:currentColor}
 .mv svg{height:28px;width:auto;flex:none;display:block}
@@ -400,6 +402,8 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .li .nm span{font-size:.72rem}
   .li .p{font-size:1.05rem}
   .top10 .li .rk{width:30px;height:30px;font-size:.82rem}
+  .stars{display:block;margin:3px 0 0;font-size:1rem;letter-spacing:1px}
+  .pod-stars .stars{font-size:.8rem}
   .top10-head{padding-top:14px}
   .update-note{font-size:.82rem}
   .reg-sec{padding-block:48px 64px}
@@ -649,7 +653,7 @@ function render(){
   else{
     const c1=top[0];
     const pod=(c,i)=>c?'<article class="pod p'+(i+1)+'"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+["1.er lugar","2.º lugar","3.er lugar"][i]+'</span></div>'+
-      '<h3>'+esc(c.nombre)+'</h3>'+(c.iglesia?'<p class="meta">'+esc(c.iglesia)+'</p>':'')+
+      '<h3>'+esc(c.nombre)+'</h3>'+(c.est5?'<div class="pod-stars">'+stars(c)+'</div>':'')+(c.iglesia?'<p class="meta">'+esc(c.iglesia)+'</p>':'')+
       '<span class="pill"><i></i>'+esc(regLabel(c.region))+'</span>'+
       '<div class="pod-pts"><b>'+fmt(c.puntos)+'</b>'+mv(c)+'<span>puntos</span></div></article>':'<div class="pod-empty"></div>';
     let h='<div class="podium">'+pod(top[1],1)+pod(top[0],0)+pod(top[2],2)+'</div>';
@@ -678,6 +682,8 @@ function render(){
   if(!$("regionOverlay").hidden&&S.openRegion)renderRegion(S.openRegion);
 }
 /* Movimiento respecto a la actualización anterior: verde si sube o se mantiene, rojo si baja */
+/* 5 estrellas (según la planilla del Sistema de Gestión) */
+function stars(c){return c.est5?'<span class="stars" title="Club 5 estrellas" aria-label="Club 5 estrellas">★★★★★</span>':''}
 const ARW={
   up:'<svg viewBox="0 0 14 30" aria-hidden="true"><path d="M7 28V3M2 9l5-6 5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   dn:'<svg viewBox="0 0 14 30" aria-hidden="true"><path d="M7 2v25M2 21l5 6 5-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -690,7 +696,7 @@ function mv(c){
   return '<span class="mv eq" title="Se mantiene en el mismo puesto" aria-label="Se mantiene">'+ARW.eq+'</span>';
 }
 function row(c,rank,max){
-  return '<div class="li"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+'</b><span>'+esc(c.iglesia||"")+(c.iglesia?" · ":"")+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
+  return '<div class="li"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+stars(c)+'</b><span>'+esc(c.iglesia||"")+(c.iglesia?" · ":"")+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
 }
 
 function renderRegion(r){
@@ -723,11 +729,13 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")for(const o of docum
 
 
 function load(){
-  fetch("data/rankings.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
+  const est=fetch("data/estrellas.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():{}).catch(()=>({}));
+  fetch("data/rankings.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>est.then(e=>[d,e])).then(([d,e])=>{
+    const E=(e&&e.estrellas)||{};
     const lists=d.areas||{};S.clubs=[];
     for(const a of Object.keys(AREAS))(lists[a]||[]).forEach((c,i)=>S.clubs.push({...c,area:a,orden:i+1,iglesia:c.distrito||"",id:idFor(a,c.region,c.nombre),actualizado:d.actualizado||""}));
     S.demo=S.clubs.length===0;S.prev=d.previo||{};S.prevFecha=d.previo_fecha||"";
-    for(const a of Object.keys(AREAS))ranked(a).forEach((c,i)=>{c.pos=i+1;const p=(S.prev[a]||{})[c.region+"|"+c.nombre];c.mov=p==null?(Object.keys(S.prev[a]||{}).length?"new":null):p-c.pos});
+    for(const a of Object.keys(AREAS))ranked(a).forEach((c,i)=>{c.pos=i+1;c.est5=(E[a]||[]).includes(c.region+"|"+c.nombre);const p=(S.prev[a]||{})[c.region+"|"+c.nombre];c.mov=p==null?(Object.keys(S.prev[a]||{}).length?"new":null):p-c.pos});
     S.demo=S.clubs.length===0;S.offline=false;S.ready=true;render();
   }).catch(()=>{S.offline=S.demo;S.ready=true;render()});
 }
