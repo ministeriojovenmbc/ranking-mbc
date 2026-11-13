@@ -94,7 +94,13 @@ button{cursor:pointer}
 .ev-head h2{font-size:1.1rem;font-weight:800;letter-spacing:.02em;color:var(--night-ink)}
 .ev-head .ev-sep{color:var(--gold-hi)}
 .ev-head .ev-org{color:var(--gold-hi)}
-.ev-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ev-row{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px) / 3);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px}
+.ev-row::-webkit-scrollbar{display:none}
+.ev-row .ev{scroll-snap-align:start}
+.ev-nav{display:flex;gap:8px;margin-left:auto}
+.ev-nav button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(242,201,76,.5);background:rgba(255,255,255,.06);color:var(--gold-hi);font-size:1.1rem;line-height:1;display:grid;place-items:center;transition:background .2s,opacity .2s}
+.ev-nav button:hover{background:rgba(242,201,76,.18)}
+.ev-nav button:disabled{opacity:.3;cursor:default}
 .ev{display:grid;gap:10px;align-content:start;min-width:0}
 .ev-pic{position:relative;aspect-ratio:1/1;border-radius:6px;overflow:hidden;background:var(--night-3);border:1px solid var(--night-hair);max-width:100%}
 .ev-pic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
@@ -113,9 +119,11 @@ button{cursor:pointer}
 .ev-date i{font-style:normal;display:block;width:100%;background:#2A2A2E;color:#fff;font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 4px;text-align:center}
 .ev-meta{font-size:.82rem;color:var(--night-muted);text-align:center}
 @media (max-width:640px){
-  .ev-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-14px;padding-inline:14px;padding-bottom:6px;scrollbar-width:none}
+  .ev-row{display:grid;grid-auto-flow:column;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:-14px;padding-inline:14px;padding-bottom:6px;scrollbar-width:none}
   .ev-row::-webkit-scrollbar{display:none}
-  .ev{flex:0 0 78%;scroll-snap-align:center}
+  .ev-row{grid-auto-columns:78%}
+  .ev-row .ev{scroll-snap-align:center}
+  .ev-nav{display:none}
   .ev-foot h3{font-size:1rem}
   .ev-head h2{font-size:1rem}
   .ev-head h2{font-size:.92rem}
@@ -461,7 +469,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
 <header class="hero" id="inicio">
   <div class="wrap">
     <section class="events" aria-labelledby="ev-title">
-      <div class="ev-head"><h2 id="ev-title">Próximos eventos <span class="ev-sep">-</span> <span class="ev-org">Misión Boliviana Central</span></h2></div>
+      <div class="ev-head"><h2 id="ev-title">Próximos eventos <span class="ev-sep">-</span> <span class="ev-org">Misión Boliviana Central</span></h2><div class="ev-nav" id="evNav" hidden><button type="button" id="evPrev" aria-label="Eventos anteriores">‹</button><button type="button" id="evNext" aria-label="Más eventos">›</button></div></div>
       <div class="ev-row">
       <article class="ev" data-fecha="2026-11-14T09:00:00-04:00">
         <div class="ev-pic">
@@ -762,7 +770,14 @@ try{$("year").textContent=new Date().getFullYear()}catch(e){}
       mini.lastChild.textContent=(d?d+"d ":"")+pad(Math.floor(s%86400/3600))+"h "+pad(Math.floor(s%3600/60))+"m "+pad(s%60)+"s";
     }
     const sec=document.querySelector(".events");if(sec)sec.hidden=evs.every(e=>e.hidden);
+    navState();
   }
+  /* Flechas para deslizar la fila de eventos (en celular se desliza con el dedo) */
+  const row=document.querySelector(".ev-row"),nav=document.getElementById("evNav"),pv=document.getElementById("evPrev"),nx=document.getElementById("evNext");
+  function navState(){if(!row)return;const over=row.scrollWidth>row.clientWidth+4;nav.hidden=!over;pv.disabled=row.scrollLeft<=4;nx.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-4}
+  const step=()=>{const e=row.querySelector(".ev:not([hidden])");return e?e.getBoundingClientRect().width+16:row.clientWidth/3};
+  pv.addEventListener("click",()=>row.scrollBy({left:-step()}));nx.addEventListener("click",()=>row.scrollBy({left:step()}));
+  row.addEventListener("scroll",navState,{passive:true});window.addEventListener("resize",navState);
   tick();setInterval(tick,1000);
 })();
 /* Cuenta regresiva al cierre de puntajes: 30 de noviembre, 23:59:59 hora de Bolivia (UTC-4) */
