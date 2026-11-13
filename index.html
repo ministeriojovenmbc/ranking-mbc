@@ -591,12 +591,12 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function fmt(n){return Number(n||0).toLocaleString("es-BO")}
 function code(r){return "R"+String(r).padStart(2,"0")}
 function lugar(n){return n+(n===1||n===3?".er":".º")+" lugar"}
-/* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ cantidad de clubes CON puntos (los de 0 no cuentan) */
+/* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ TODOS sus clubes (también los que tienen 0) */
 function regionStats(area){
   const acc={};
   for(const c of clubs()){if(c.area!==(area||S.area))continue;const s=acc[c.region]||(acc[c.region]={total:0,n:0});s.total+=c.puntos||0;s.n++;if((c.puntos||0)>0)s.np=(s.np||0)+1}
   const regs=Object.keys(acc).map(Number);
-  for(const r of regs){acc[r].np=acc[r].np||0;acc[r].avg=acc[r].np?acc[r].total/acc[r].np:0;acc[r].prom=Math.round(acc[r].avg)}
+  for(const r of regs){acc[r].np=acc[r].np||0;acc[r].avg=acc[r].n?acc[r].total/acc[r].n:0;acc[r].prom=Math.round(acc[r].avg*10)/10}
   regs.sort((a,b)=>acc[b].avg-acc[a].avg||acc[b].total-acc[a].total||a-b).forEach((r,i)=>acc[r].puesto=i+1);
   return acc;
 }
@@ -664,7 +664,7 @@ function render(){
     return '<button class="reg'+(ch?"":" none")+(pz&&pz<=3?" rp"+pz:"")+'" type="button" data-region="'+r+'">'+
       (st?'<div class="rhead"><span class="rmedal">'+pz+'</span><span class="rplace">'+lugar(pz)+'</span></div>':'')+
       '<div class="tn"><span class="rname">'+esc(rname(r))+'</span>'+(UBIC[r]?'<span class="ubic">'+esc(UBIC[r])+'</span>':'')+'</div>'+
-      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts ÷ '+st.np+(st.np===1?' club':' clubes')+' con puntos (de '+st.n+')</small></div>':'')+
+      (st?'<div class="ravg"><span>Promedio regional</span><b>'+fmt(st.prom)+' pts</b><small>'+fmt(st.total)+' pts ÷ '+st.n+(st.n===1?' club':' clubes')+' de la región</small></div>':'')+
       (ch?'<div class="cl">'+trophy+'<b>'+esc(ch.nombre)+'</b></div><div class="ft"><span>'+rc.length+(rc.length===1?" club":" clubes")+'</span><span><span class="num">'+fmt(ch.puntos)+'</span> pts</span></div>'
          :'<div class="cl"><b>Sin clubes en esta Área</b></div><div class="ft"><span>0 clubes</span><span>—</span></div>')+'</button>';
   };
