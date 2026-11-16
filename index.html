@@ -492,38 +492,12 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .form{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  /* Clasificación en celular: tarjetas a lo ancho, 1.º arriba */
-  .podium{grid-template-columns:1fr;gap:10px;margin-top:28px}
-  .podium .pod.p2,.podium .pod.p3{margin-top:0}
-  .podium .pod.p1{order:-1}
-  .podium .pod.p2{order:0}
-  .podium .pod.p3{order:1}
-  .pod{padding:16px 18px;justify-items:start;text-align:left;gap:8px;border-radius:18px}
-  .pod.p1{padding-block:20px 18px}
-  .pod-top{flex-direction:row;gap:10px}
-  .medal{width:36px;height:36px;font-size:1rem}
-  .pod.p1 .medal{width:44px;height:44px;font-size:1.2rem}
-  .pod-k{font-size:.68rem;letter-spacing:.12em}
-  .pod h3{font-size:1.25rem}
-  .pod.p1 h3{font-size:1.5rem}
-  .pod .meta{font-size:.8rem}
-  .pill{font-size:.72rem;padding:4px 10px;width:max-content}
-  .pill i{display:inline-block}
-  .pod-pts{flex-direction:row;align-items:baseline;gap:8px;margin-top:2px}
-  .pod-pts b{font-size:1.7rem}
-  .pod.p1 .pod-pts b{font-size:2.2rem}
-  .pod-pts span{font-size:.75rem}
-  .pod-stars .stars{font-size:.95rem}
-  .pod.multi{gap:10px}
-  .pod-list,.pod-list.many{width:100%;gap:8px;grid-template-columns:1fr}
-  .pod-list li{grid-template-columns:minmax(0,1fr) auto;justify-items:stretch;text-align:left;padding-bottom:8px}
-  .pod-list.many li:nth-last-child(2):nth-child(odd){border-bottom:1px solid var(--hair);padding-bottom:8px}
-  .pl-n{justify-content:flex-start}
-  .pl-n b,.pod.p1 .pl-n b{font-size:1rem}
-  .pl-n .stars{display:inline-block;font-size:.8rem}
-  .pl-r{font-size:.74rem}
-  .pl-m{grid-column:2;grid-row:1/span 2}
-  .pl-m .mv svg{height:20px}
+  /* Clasificación en celular: mismo podio 2-1-3 que en computadora, compacto */
+  .pod-list.many{grid-template-columns:1fr}
+  .pod-list.many .pl-n b,.pod.p1 .pod-list.many .pl-n b{font-size:.72rem}
+  .pod-list .pl-n .stars{display:block;margin:2px 0 0;font-size:.62rem;letter-spacing:0}
+  .pod-list.many li:nth-last-child(2):nth-child(odd){border-bottom:1px solid var(--hair);padding-bottom:6px}
+  .pod.multi .pod-k{font-size:.5rem}
   .li .nm .dist{display:none}
   .li.grp{grid-template-columns:32px minmax(0,1fr) auto;row-gap:8px}
   .li.grp .rk{grid-column:1;grid-row:1}
