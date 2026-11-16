@@ -214,6 +214,12 @@ button{cursor:pointer}
 .pod-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:pl}
 .pod-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--hair)}
 .pod-list li:last-child{border-bottom:0;padding-bottom:0}
+.pod-list.many{grid-template-columns:1fr 1fr;column-gap:16px}
+.pod-list.many .pl-n b,.pod.p1 .pod-list.many .pl-n b{font-size:.98rem;overflow-wrap:normal;word-break:normal}
+.pod-list.many .pl-n .stars{font-size:.75rem;letter-spacing:1px}
+.pod-list.many .pl-m .mv svg{height:18px}
+.pod-list.many li:nth-last-child(2):nth-child(odd){border-bottom:0;padding-bottom:0}
+.li .nm .dist{font-style:normal}
 .pl-n{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
 .pl-n b{font-family:var(--f-head);font-weight:900;font-size:1.15rem;letter-spacing:-.01em;line-height:1.1;overflow-wrap:anywhere}
 .pod.p1 .pl-n b{font-size:1.35rem}
@@ -472,6 +478,44 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .verse .wrap{padding-block:64px 56px}
   .form{grid-template-columns:1fr}
 }
+@media (max-width:640px){
+  /* Clasificación en celular: tarjetas a lo ancho, 1.º arriba */
+  .podium{grid-template-columns:1fr;gap:10px;margin-top:28px}
+  .podium .pod.p2,.podium .pod.p3{margin-top:0}
+  .podium .pod.p1{order:-1}
+  .podium .pod.p2{order:0}
+  .podium .pod.p3{order:1}
+  .pod{padding:16px 18px;justify-items:start;text-align:left;gap:8px;border-radius:18px}
+  .pod.p1{padding-block:20px 18px}
+  .pod-top{flex-direction:row;gap:10px}
+  .medal{width:36px;height:36px;font-size:1rem}
+  .pod.p1 .medal{width:44px;height:44px;font-size:1.2rem}
+  .pod-k{font-size:.68rem;letter-spacing:.12em}
+  .pod h3{font-size:1.25rem}
+  .pod.p1 h3{font-size:1.5rem}
+  .pod .meta{font-size:.8rem}
+  .pill{font-size:.72rem;padding:4px 10px;width:max-content}
+  .pill i{display:inline-block}
+  .pod-pts{flex-direction:row;align-items:baseline;gap:8px;margin-top:2px}
+  .pod-pts b{font-size:1.7rem}
+  .pod.p1 .pod-pts b{font-size:2.2rem}
+  .pod-pts span{font-size:.75rem}
+  .pod-stars .stars{font-size:.95rem}
+  .pod.multi{gap:10px}
+  .pod-list,.pod-list.many{width:100%;gap:8px;grid-template-columns:1fr}
+  .pod-list li{grid-template-columns:minmax(0,1fr) auto;justify-items:stretch;text-align:left;padding-bottom:8px}
+  .pod-list.many li:nth-last-child(2):nth-child(odd){border-bottom:1px solid var(--hair);padding-bottom:8px}
+  .pl-n{justify-content:flex-start}
+  .pl-n b,.pod.p1 .pl-n b{font-size:1rem}
+  .pl-n .stars{display:inline-block;font-size:.8rem}
+  .pl-r{font-size:.74rem}
+  .pl-m{grid-column:2;grid-row:1/span 2}
+  .pl-m .mv svg{height:20px}
+  .li .nm .dist{display:none}
+  .li .nm b{font-size:.98rem}
+  .li .nm span{font-size:.76rem}
+  .rank-note{font-size:.84rem;padding:12px 14px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -632,7 +676,7 @@ function defaultRegions(){return Array.from({length:N_REG},(_,i)=>"Región "+(i+
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmt(n){return Number(n||0).toLocaleString("es-BO")}
 function code(r){return "R"+String(r).padStart(2,"0")}
-function lugares(l){const out=[];let p=0,i=0;while(i<l.length){p++;const s=l[i].puntos;let k=0;while(i<l.length&&l[i].puntos===s&&k<3){out.push({c:l[i],p});i++;k++}}return out}
+function lugares(l){const out=[];let p=0,prev=null;for(const c of l){if(c.puntos!==prev){p++;prev=c.puntos}out.push({c,p})}return out}
 function lugar(n){return n+(n===1||n===3?".er":".º")+" lugar"}
 /* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ TODOS sus clubes (también los que tienen 0) */
 function regionStats(area){
@@ -681,14 +725,14 @@ function render(){
   $("stats").innerHTML=[[fmt(list.length),"clubes en el ranking"],[regs+" de "+N_REG,"regiones participando"],[list[0]?fmt(list[0].puntos):"—","puntaje más alto"]]
     .map(([v,l])=>'<div class="stat"><span class="v">'+v+'</span><span class="l">'+l+'</span></div>').join("");
 
-  const N=S.area==="conquistadores"?30:10; // Conquistadores muestra el Top 30; las demás Áreas, el Top 10
+  const N=10; // Los 3 ministerios muestran los 10 primeros puestos
   $("topLead").textContent="Top "+N+" de toda la Misión Boliviana Central.";
   const lg=$("mvLegend");
   const PF=S.prevFecha&&typeof S.prevFecha==="object"?S.prevFecha[S.area]:S.prevFecha;
   if(PF){lg.hidden=false;lg.innerHTML='<span><span class="mv up">'+ARW.up+'</span>subió</span><span><span class="mv eq">'+ARW.eq+'</span>se mantiene</span><span><span class="mv dn">'+ARW.dn+'</span>bajó</span><span>· comparado con la actualización del '+esc(new Date(PF).toLocaleString("es-BO",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+'</span>'}
   else lg.hidden=true;
-  /* Puestos con empate: mismo puntaje = mismo puesto, con máximo 3 clubes por puesto
-     (los 3 primeros en alcanzar ese puntaje); los siguientes empatados pasan al puesto que sigue. */
+  /* Puestos con empate: todos los clubes con el mismo puntaje comparten el puesto
+     (dentro del puesto van en el orden en que alcanzaron ese puntaje). */
   const G=lugares(list),grp=n=>G.filter(x=>x.p===n).map(x=>x.c);
   const top=G.filter(x=>x.p<=N);
   if(!top.length){$("top").innerHTML='<div class="empty">Aún no hay clubes de '+esc(AREAS[S.area])+' en el ranking.</div>'}
@@ -700,12 +744,12 @@ function render(){
       '<span class="pill"><i></i>'+esc(regLabel(c.region))+'</span>'+
       '<div class="pod-pts"><b>'+fmt(c.puntos)+'</b>'+mv(c)+'<span>puntos</span></div></article>';
     const podN=(g,i)=>'<article class="pod p'+(i+1)+' multi"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+LBL[i]+' · '+g.length+' empatados</span></div>'+
-      '<ol class="pod-list">'+g.map(c=>'<li><div class="pl-n"><b>'+esc(c.nombre)+'</b>'+stars(c)+'</div><span class="pl-r">'+esc(regLabel(c.region))+'</span><span class="pl-m">'+mv(c)+'</span></li>').join("")+'</ol>'+
+      '<ol class="pod-list'+(g.length>3?' many':'')+'">'+g.map(c=>'<li><div class="pl-n"><b>'+esc(c.nombre)+'</b>'+stars(c)+'</div><span class="pl-r">'+esc(regLabel(c.region))+'</span><span class="pl-m">'+mv(c)+'</span></li>').join("")+'</ol>'+
       '<div class="pod-pts"><b>'+fmt(g[0].puntos)+'</b><span>puntos c/u</span></div></article>';
     const pod=(g,i)=>!g.length?'<div class="pod-empty"></div>':g.length===1?pod1(g[0],i):podN(g,i);
     let h='<div class="podium">'+pod(grp(2),1)+pod(grp(1),0)+pod(grp(3),2)+'</div>'+
       '<div class="rank-note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'+
-      '<p><b>Nota:</b> los clubes se clasifican por puntaje. Si hay un empate, en cada puesto se ubican <b>como máximo 3 clubes</b>: los 3 primeros en alcanzar ese puntaje. Los siguientes clubes con el mismo puntaje pasan al puesto que sigue.</p></div>';
+      '<p><b>Nota:</b> los clubes se clasifican por puntaje. Si hay un empate, <b>todos los clubes con el mismo puntaje comparten el puesto</b>, y dentro del puesto aparecen en el orden en que alcanzaron ese puntaje.</p></div>';
     const rest=top.filter(x=>x.p>3),max=c1.puntos||1;
     if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rest.map(x=>row(x.c,x.p,max)).join("")+'</div>';
     $("top").innerHTML=h;
@@ -745,7 +789,7 @@ function mv(c){
   return '<span class="mv eq" title="Se mantiene en el mismo puesto" aria-label="Se mantiene">'+ARW.eq+'</span>';
 }
 function row(c,rank,max){
-  return '<div class="li"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+stars(c)+'</b><span>'+esc(c.iglesia||"")+(c.iglesia?" · ":"")+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
+  return '<div class="li"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+stars(c)+'</b><span>'+(c.iglesia?'<i class="dist">'+esc(c.iglesia)+' · </i>':'')+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
 }
 
 function renderRegion(r){
