@@ -227,6 +227,19 @@ button{cursor:pointer}
 .pl-r{grid-column:1;font-size:.8rem;color:var(--muted)}
 .pl-m{grid-column:2;grid-row:1/span 2}
 .pl-m .mv svg{height:22px}
+.li.grp{align-items:start}
+.li.grp .rk{margin-top:2px}
+.li.grp .p{margin-top:4px}
+.li.grp .p small{display:block;font-family:var(--f-body);font-size:.68rem;font-weight:600;color:var(--muted);-webkit-text-fill-color:var(--muted);text-align:right}
+.gnm{grid-column:2/4;min-width:0;display:grid;gap:8px}
+.gk{font-family:var(--f-head);font-weight:700;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.glist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.glist li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:1px 8px;padding:8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--gold-line)}
+.glist b{font-weight:600;font-size:.95rem;overflow-wrap:anywhere}
+.glist b .stars{font-size:.85rem;margin-left:6px}
+.glist span{grid-column:1;font-size:.76rem;color:var(--muted)}
+.gmv{grid-column:2;grid-row:1/span 2;font-style:normal}
+.gmv .mv svg{height:22px}
 .rank-note{display:flex;align-items:flex-start;gap:12px;margin-top:18px;background:var(--gold-tint);border:1px solid var(--gold-line);border-radius:var(--r-lg);padding:14px 18px;color:var(--ink);font-size:.92rem;line-height:1.5}
 .rank-note svg{width:22px;height:22px;flex:none;color:var(--gold);margin-top:1px}
 .rank-note b{font-weight:700}
@@ -512,6 +525,19 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .pl-m{grid-column:2;grid-row:1/span 2}
   .pl-m .mv svg{height:20px}
   .li .nm .dist{display:none}
+  .li.grp{grid-template-columns:32px minmax(0,1fr) auto;row-gap:8px}
+  .li.grp .rk{grid-column:1;grid-row:1}
+  .li.grp .p{grid-column:3;grid-row:1;margin-top:2px;display:flex;align-items:baseline;gap:4px}
+  .li.grp .mvc{display:none}
+  .gnm{grid-column:1/-1;grid-row:2}
+  .li.grp::after{content:"";grid-column:2;grid-row:1}
+  .glist{grid-template-columns:1fr;gap:6px}
+  .glist li{padding:7px 10px}
+  .glist b{font-size:.9rem}
+  .glist b .stars{display:inline-block;margin:0 0 0 4px;font-size:.72rem;letter-spacing:1px}
+  .glist span{font-size:.7rem}
+  .gmv .mv svg{height:18px}
+  .li.grp .p small{font-size:.6rem}
   .li .nm b{font-size:.98rem}
   .li .nm span{font-size:.76rem}
   .rank-note{font-size:.84rem;padding:12px 14px}
@@ -751,7 +777,7 @@ function render(){
       '<div class="rank-note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'+
       '<p><b>Nota:</b> los clubes se clasifican por puntaje. Si hay un empate, <b>todos los clubes con el mismo puntaje comparten el puesto</b>, y dentro del puesto aparecen en el orden en que alcanzaron ese puntaje.</p></div>';
     const rest=top.filter(x=>x.p>3),max=c1.puntos||1;
-    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rest.map(x=>row(x.c,x.p,max)).join("")+'</div>';
+    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rowsGrouped(rest,max)+'</div>';
     $("top").innerHTML=h;
   }
 
@@ -788,6 +814,17 @@ function mv(c){
   if(c.mov<0)return '<span class="mv dn" title="Bajó '+(-c.mov)+(c.mov<-1?' puestos':' puesto')+'" aria-label="Bajó '+(-c.mov)+'">'+ARW.dn+'<small>'+(-c.mov)+'</small></span>';
   return '<span class="mv eq" title="Se mantiene en el mismo puesto" aria-label="Se mantiene">'+ARW.eq+'</span>';
 }
+/* Puestos agrupados: un solo número de puesto y, junto a él, todos los clubes empatados */
+function rowsGrouped(items,max){
+  const out=[];let i=0;
+  while(i<items.length){const p=items[i].p,g=[];while(i<items.length&&items[i].p===p){g.push(items[i].c);i++}out.push(g.length===1?row(g[0],p,max):rowGroup(g,p,max))}
+  return out.join("");
+}
+function rowGroup(g,p,max){
+  return '<div class="li grp"><span class="rk">'+p+'</span><div class="gnm"><span class="gk">'+g.length+' clubes empatados</span><ul class="glist">'+
+    g.map(c=>'<li><b>'+esc(c.nombre)+stars(c)+'</b><span>'+esc(regLabel(c.region))+'</span><i class="gmv">'+mv(c)+'</i></li>').join("")+
+    '</ul></div><span class="p">'+fmt(g[0].puntos)+'<small>c/u</small></span><span class="mvc"></span></div>';
+}
 function row(c,rank,max){
   return '<div class="li"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+stars(c)+'</b><span>'+(c.iglesia?'<i class="dist">'+esc(c.iglesia)+' · </i>':'')+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
 }
@@ -798,7 +835,7 @@ function renderRegion(r){
   $("regTitle").textContent=rname(r);
   const st=regionStats(S.area)[r];
   $("regSub").textContent=AREAS[S.area]+(UBIC[r]?" · "+UBIC[r]:"")+" · "+rc.length+(rc.length===1?" club":" clubes")+(st?" · "+lugar(st.puesto)+" por promedio ("+fmt(st.prom)+" pts)":"");
-  $("regList").innerHTML=rc.length?'<div class="list">'+lugares(rc).map(x=>row(x.c,x.p,rc[0].puntos||1)).join("")+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
+  $("regList").innerHTML=rc.length?'<div class="list">'+rowsGrouped(lugares(rc),rc[0].puntos||1)+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
 }
 
 /* Navegación entre Áreas */
