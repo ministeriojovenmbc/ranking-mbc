@@ -210,6 +210,17 @@ button{cursor:pointer}
 .top10 .bar{background:var(--gold-tint);border-color:var(--gold-line)}
 .top10 .bar i{background:linear-gradient(90deg,#B98418,#E8BE4F 70%,#FFE9A3)}
 .top10 .li .nm b{letter-spacing:-.005em}
+.pod.multi{gap:12px}
+.pod-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:pl}
+.pod-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--hair)}
+.pod-list li:last-child{border-bottom:0;padding-bottom:0}
+.pl-n{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
+.pl-n b{font-family:var(--f-head);font-weight:900;font-size:1.15rem;letter-spacing:-.01em;line-height:1.1;overflow-wrap:anywhere}
+.pod.p1 .pl-n b{font-size:1.35rem}
+.pl-n .stars{margin-left:0;font-size:.9rem}
+.pl-r{grid-column:1;font-size:.8rem;color:var(--muted)}
+.pl-m{grid-column:2;grid-row:1/span 2}
+.pl-m .mv svg{height:22px}
 .rank-note{display:flex;align-items:flex-start;gap:12px;margin-top:18px;background:var(--gold-tint);border:1px solid var(--gold-line);border-radius:var(--r-lg);padding:14px 18px;color:var(--ink);font-size:.92rem;line-height:1.5}
 .rank-note svg{width:22px;height:22px;flex:none;color:var(--gold);margin-top:1px}
 .rank-note b{font-weight:700}
@@ -403,6 +414,14 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .pod-pts b{font-size:1.25rem}
   .pod.p1 .pod-pts b{font-size:1.6rem}
   .pod-pts span{font-size:.62rem}
+  .pod.multi{gap:8px}
+  .pod-list{gap:6px;width:100%}
+  .pod-list li{grid-template-columns:1fr;justify-items:center;text-align:center;padding-bottom:6px}
+  .pl-n{justify-content:center}
+  .pl-n b,.pod.p1 .pl-n b{font-size:.74rem}
+  .pl-r{font-size:.58rem}
+  .pl-m{grid-column:1;grid-row:auto}
+  .pl-m .mv svg{height:14px}
   .list{padding:4px 14px;border-radius:18px}
   .li{grid-template-columns:32px minmax(0,1fr) 64px 26px;gap:8px;padding:12px 0}
   .mv svg{height:22px}
@@ -613,6 +632,7 @@ function defaultRegions(){return Array.from({length:N_REG},(_,i)=>"Región "+(i+
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmt(n){return Number(n||0).toLocaleString("es-BO")}
 function code(r){return "R"+String(r).padStart(2,"0")}
+function lugares(l){const out=[];let p=0,i=0;while(i<l.length){p++;const s=l[i].puntos;let k=0;while(i<l.length&&l[i].puntos===s&&k<3){out.push({c:l[i],p});i++;k++}}return out}
 function lugar(n){return n+(n===1||n===3?".er":".º")+" lugar"}
 /* Promedio regional por ministerio: suma de puntos de los clubes de la región en ese ministerio ÷ TODOS sus clubes (también los que tienen 0) */
 function regionStats(area){
@@ -667,19 +687,27 @@ function render(){
   const PF=S.prevFecha&&typeof S.prevFecha==="object"?S.prevFecha[S.area]:S.prevFecha;
   if(PF){lg.hidden=false;lg.innerHTML='<span><span class="mv up">'+ARW.up+'</span>subió</span><span><span class="mv eq">'+ARW.eq+'</span>se mantiene</span><span><span class="mv dn">'+ARW.dn+'</span>bajó</span><span>· comparado con la actualización del '+esc(new Date(PF).toLocaleString("es-BO",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+'</span>'}
   else lg.hidden=true;
-  const top=list.slice(0,N);
+  /* Puestos con empate: mismo puntaje = mismo puesto, con máximo 3 clubes por puesto
+     (los 3 primeros en alcanzar ese puntaje); los siguientes empatados pasan al puesto que sigue. */
+  const G=lugares(list),grp=n=>G.filter(x=>x.p===n).map(x=>x.c);
+  const top=G.filter(x=>x.p<=N);
   if(!top.length){$("top").innerHTML='<div class="empty">Aún no hay clubes de '+esc(AREAS[S.area])+' en el ranking.</div>'}
   else{
-    const c1=top[0];
-    const pod=(c,i)=>c?'<article class="pod p'+(i+1)+'"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+["1.er lugar","2.º lugar","3.er lugar"][i]+'</span></div>'+
+    const c1=top[0].c;
+    const LBL=["1.er lugar","2.º lugar","3.er lugar"];
+    const pod1=(c,i)=>'<article class="pod p'+(i+1)+'"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+LBL[i]+'</span></div>'+
       '<h3>'+esc(c.nombre)+'</h3>'+(c.est5?'<div class="pod-stars">'+stars(c)+'</div>':'')+(c.iglesia?'<p class="meta">'+esc(c.iglesia)+'</p>':'')+
       '<span class="pill"><i></i>'+esc(regLabel(c.region))+'</span>'+
-      '<div class="pod-pts"><b>'+fmt(c.puntos)+'</b>'+mv(c)+'<span>puntos</span></div></article>':'<div class="pod-empty"></div>';
-    let h='<div class="podium">'+pod(top[1],1)+pod(top[0],0)+pod(top[2],2)+'</div>'+
+      '<div class="pod-pts"><b>'+fmt(c.puntos)+'</b>'+mv(c)+'<span>puntos</span></div></article>';
+    const podN=(g,i)=>'<article class="pod p'+(i+1)+' multi"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+LBL[i]+' · '+g.length+' empatados</span></div>'+
+      '<ol class="pod-list">'+g.map(c=>'<li><div class="pl-n"><b>'+esc(c.nombre)+'</b>'+stars(c)+'</div><span class="pl-r">'+esc(regLabel(c.region))+'</span><span class="pl-m">'+mv(c)+'</span></li>').join("")+'</ol>'+
+      '<div class="pod-pts"><b>'+fmt(g[0].puntos)+'</b><span>puntos c/u</span></div></article>';
+    const pod=(g,i)=>!g.length?'<div class="pod-empty"></div>':g.length===1?pod1(g[0],i):podN(g,i);
+    let h='<div class="podium">'+pod(grp(2),1)+pod(grp(1),0)+pod(grp(3),2)+'</div>'+
       '<div class="rank-note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'+
-      '<p><b>Nota:</b> los clubes se clasifican por puntaje. Si dos o más clubes tienen el mismo puntaje, se ubica primero el club que <b>alcanzó ese puntaje primero</b>. Por eso, en un empate, el podio muestra a los 3 primeros clubes en llegar.</p></div>';
-    const rest=top.slice(3),max=c1.puntos||1;
-    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rest.map((c,i)=>row(c,i+4,max)).join("")+'</div>';
+      '<p><b>Nota:</b> los clubes se clasifican por puntaje. Si hay un empate, en cada puesto se ubican <b>como máximo 3 clubes</b>: los 3 primeros en alcanzar ese puntaje. Los siguientes clubes con el mismo puntaje pasan al puesto que sigue.</p></div>';
+    const rest=top.filter(x=>x.p>3),max=c1.puntos||1;
+    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rest.map(x=>row(x.c,x.p,max)).join("")+'</div>';
     $("top").innerHTML=h;
   }
 
@@ -726,7 +754,7 @@ function renderRegion(r){
   $("regTitle").textContent=rname(r);
   const st=regionStats(S.area)[r];
   $("regSub").textContent=AREAS[S.area]+(UBIC[r]?" · "+UBIC[r]:"")+" · "+rc.length+(rc.length===1?" club":" clubes")+(st?" · "+lugar(st.puesto)+" por promedio ("+fmt(st.prom)+" pts)":"");
-  $("regList").innerHTML=rc.length?'<div class="list">'+rc.map((c,i)=>row(c,i+1,rc[0].puntos||1)).join("")+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
+  $("regList").innerHTML=rc.length?'<div class="list">'+lugares(rc).map(x=>row(x.c,x.p,rc[0].puntos||1)).join("")+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
 }
 
 /* Navegación entre Áreas */
