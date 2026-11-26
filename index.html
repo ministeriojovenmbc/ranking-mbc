@@ -240,6 +240,28 @@ button{cursor:pointer}
 .glist span{grid-column:1;font-size:.76rem;color:var(--muted)}
 .gmv{grid-column:2;grid-row:1/span 2;font-style:normal}
 .gmv .mv svg{height:22px}
+/* Los 10 primeros lugares, brillando */
+.top-note{margin-top:28px}
+.shine-list{margin-top:14px;box-shadow:0 0 0 1px var(--gold-line),0 24px 60px -34px rgba(200,150,30,.75)}
+.shine-list .li{position:relative;overflow:hidden;isolation:isolate}
+.shine-list .li::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;z-index:-1;pointer-events:none;
+  background:linear-gradient(100deg,transparent 0%,rgba(255,236,170,.0) 15%,rgba(255,226,140,.55) 50%,rgba(255,236,170,0) 85%,transparent 100%);
+  transform:skewX(-18deg);animation:brillo 3.6s ease-in-out infinite}
+.shine-list .li:nth-of-type(2)::after{animation-delay:.25s}.shine-list .li:nth-of-type(3)::after{animation-delay:.5s}
+.shine-list .li:nth-of-type(4)::after{animation-delay:.75s}.shine-list .li:nth-of-type(5)::after{animation-delay:1s}
+.shine-list .li:nth-of-type(6)::after{animation-delay:1.25s}.shine-list .li:nth-of-type(7)::after{animation-delay:1.5s}
+.shine-list .li:nth-of-type(8)::after{animation-delay:1.75s}.shine-list .li:nth-of-type(9)::after{animation-delay:2s}
+.shine-list .li:nth-of-type(10)::after{animation-delay:2.25s}.shine-list .li:nth-of-type(11)::after{animation-delay:2.5s}
+@keyframes brillo{0%{left:-60%}55%,100%{left:120%}}
+.shine-list .li .rk{animation:latido 2.4s ease-in-out infinite}
+@keyframes latido{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 3px rgba(120,80,0,.25),0 0 0 5px rgba(242,201,76,.22),0 0 18px 4px rgba(242,201,76,.55)}}
+.shine-list .li.top1 .rk{width:44px;height:44px;font-size:1.15rem}
+.shine-list .li.top2 .rk{background:radial-gradient(circle at 32% 28%,#FFFFFF 0%,#D9DEE6 40%,#9AA2AE 80%,#7D8693 100%);color:#2B2F36}
+.shine-list .li.top3 .rk{background:radial-gradient(circle at 32% 28%,#FCE3CF 0%,#E0A070 40%,#B06A3B 80%,#8E5330 100%);color:#3B1E0C}
+.shine-list .li.top1{background:linear-gradient(90deg,rgba(242,201,76,.28),transparent 70%)}
+.shine-list .li.top1 .nm b{font-size:1.2rem;font-weight:800}
+.shine-list .li.top1 .p{font-size:1.5rem}
+@media (prefers-reduced-motion:reduce){.shine-list .li::after,.shine-list .li .rk{animation:none}}
 .rank-note{display:flex;align-items:flex-start;gap:12px;margin-top:18px;background:var(--gold-tint);border:1px solid var(--gold-line);border-radius:var(--r-lg);padding:14px 18px;color:var(--ink);font-size:.92rem;line-height:1.5}
 .rank-note svg{width:22px;height:22px;flex:none;color:var(--gold);margin-top:1px}
 .rank-note b{font-weight:700}
@@ -499,6 +521,10 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
   .pod-list.many li:nth-last-child(2):nth-child(odd){border-bottom:1px solid var(--hair);padding-bottom:6px}
   .pod.multi .pod-k{font-size:.5rem}
   .li .nm .dist{display:none}
+  .shine-list .li.top1 .rk{width:36px;height:36px;font-size:.95rem}
+  .shine-list .li.top1 .nm b{font-size:1.02rem}
+  .shine-list .li.top1 .p{font-size:1.2rem}
+  .top-note{margin-top:20px}
   .li.grp{grid-template-columns:32px minmax(0,1fr) auto;row-gap:8px}
   .li.grp .rk{grid-column:1;grid-row:1}
   .li.grp .p{grid-column:3;grid-row:1;margin-top:2px;display:flex;align-items:baseline;gap:4px}
@@ -592,7 +618,7 @@ td.n{width:120px} td.n input{padding:6px 9px;text-align:right;font-variant-numer
     <div class="area-head">
       <img id="areaLogo" src="" data-logo="conquistadores" alt="">
       <h2 id="areaName">Conquistadores</h2>
-      <p id="topLead">Top 10 de toda la Misión Boliviana Central.</p>
+      <p id="topLead">Los 10 primeros lugares de toda la Misión Boliviana Central.</p>
       <div class="stats" id="stats"></div>
     </div>
     <div id="top"></div>
@@ -726,32 +752,20 @@ function render(){
     .map(([v,l])=>'<div class="stat"><span class="v">'+v+'</span><span class="l">'+l+'</span></div>').join("");
 
   const N=10; // Los 3 ministerios muestran los 10 primeros puestos
-  $("topLead").textContent="Top "+N+" de toda la Misión Boliviana Central.";
+  $("topLead").textContent="Los "+N+" primeros lugares de toda la Misión Boliviana Central.";
   const lg=$("mvLegend");
   const PF=S.prevFecha&&typeof S.prevFecha==="object"?S.prevFecha[S.area]:S.prevFecha;
   if(PF){lg.hidden=false;lg.innerHTML='<span><span class="mv up">'+ARW.up+'</span>subió</span><span><span class="mv eq">'+ARW.eq+'</span>se mantiene</span><span><span class="mv dn">'+ARW.dn+'</span>bajó</span><span>· comparado con la actualización del '+esc(new Date(PF).toLocaleString("es-BO",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+'</span>'}
   else lg.hidden=true;
-  /* Puestos con empate: todos los clubes con el mismo puntaje comparten el puesto
-     (dentro del puesto van en el orden en que alcanzaron ese puntaje). */
-  const G=lugares(list),grp=n=>G.filter(x=>x.p===n).map(x=>x.c);
-  const top=G.filter(x=>x.p<=N);
+  /* Los 10 primeros lugares, uno por puesto. En un empate de puntaje queda primero el club que
+     subió primero sus informes (es el orden en que vienen en la planilla del sistema). */
+  const top=list.slice(0,N);
   if(!top.length){$("top").innerHTML='<div class="empty">Aún no hay clubes de '+esc(AREAS[S.area])+' en el ranking.</div>'}
   else{
-    const c1=top[0].c;
-    const LBL=["1.er lugar","2.º lugar","3.er lugar"];
-    const pod1=(c,i)=>'<article class="pod p'+(i+1)+'"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+LBL[i]+'</span></div>'+
-      '<h3>'+esc(c.nombre)+'</h3>'+(c.est5?'<div class="pod-stars">'+stars(c)+'</div>':'')+(c.iglesia?'<p class="meta">'+esc(c.iglesia)+'</p>':'')+
-      '<span class="pill"><i></i>'+esc(regLabel(c.region))+'</span>'+
-      '<div class="pod-pts"><b>'+fmt(c.puntos)+'</b>'+mv(c)+'<span>puntos</span></div></article>';
-    const podN=(g,i)=>'<article class="pod p'+(i+1)+' multi"><div class="pod-top"><span class="medal">'+(i+1)+'</span><span class="pod-k">'+LBL[i]+' · '+g.length+' empatados</span></div>'+
-      '<ol class="pod-list'+(g.length>3?' many':'')+'">'+g.map(c=>'<li><div class="pl-n"><b>'+esc(c.nombre)+'</b>'+stars(c)+'</div><span class="pl-r">'+esc(regLabel(c.region))+'</span><span class="pl-m">'+mv(c)+'</span></li>').join("")+'</ol>'+
-      '<div class="pod-pts"><b>'+fmt(g[0].puntos)+'</b><span>puntos c/u</span></div></article>';
-    const pod=(g,i)=>!g.length?'<div class="pod-empty"></div>':g.length===1?pod1(g[0],i):podN(g,i);
-    let h='<div class="podium">'+pod(grp(2),1)+pod(grp(1),0)+pod(grp(3),2)+'</div>'+
-      '<div class="rank-note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'+
-      '<p><b>Nota:</b> los clubes se clasifican por puntaje. Si hay un empate, <b>todos los clubes con el mismo puntaje comparten el puesto</b>, y dentro del puesto aparecen en el orden en que alcanzaron ese puntaje.</p></div>';
-    const rest=top.filter(x=>x.p>3),max=c1.puntos||1;
-    if(rest.length)h+='<div class="list top10"><div class="top10-head"><span>Top '+N+' de la Misión</span><span>Puntos</span></div>'+rowsGrouped(rest,max)+'</div>';
+    const max=top[0].puntos||1;
+    let h='<div class="rank-note top-note" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'+
+      '<p><b>Nota:</b> en caso de empate en la puntuación, se ubica primero <b>el club que subió primero sus informes</b> al sistema.</p></div>';
+    h+='<div class="list top10 shine-list"><div class="top10-head"><span>Los 10 primeros lugares</span><span>Puntos</span></div>'+top.map((c,i)=>row(c,i+1,max)).join("")+'</div>';
     $("top").innerHTML=h;
   }
 
@@ -800,7 +814,7 @@ function rowGroup(g,p,max){
     '</ul></div><span class="p">'+fmt(g[0].puntos)+'<small>c/u</small></span><span class="mvc"></span></div>';
 }
 function row(c,rank,max){
-  return '<div class="li"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+stars(c)+'</b><span>'+(c.iglesia?'<i class="dist">'+esc(c.iglesia)+' · </i>':'')+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
+  return '<div class="li'+(rank<=3?' top'+rank:'')+'"><span class="rk"'+(rank===1?' style="color:var(--gold)"':"")+'>'+rank+'</span><div class="nm"><b>'+esc(c.nombre)+stars(c)+'</b><span>'+(c.iglesia?'<i class="dist">'+esc(c.iglesia)+' · </i>':'')+esc(regLabel(c.region))+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+Math.max(4,Math.round((c.puntos||0)/max*100))+'%"></i></div><span class="p">'+fmt(c.puntos)+'</span><span class="mvc">'+mv(c)+'</span></div>';
 }
 
 function renderRegion(r){
@@ -809,7 +823,7 @@ function renderRegion(r){
   $("regTitle").textContent=rname(r);
   const st=regionStats(S.area)[r];
   $("regSub").textContent=AREAS[S.area]+(UBIC[r]?" · "+UBIC[r]:"")+" · "+rc.length+(rc.length===1?" club":" clubes")+(st?" · "+lugar(st.puesto)+" por promedio ("+fmt(st.prom)+" pts)":"");
-  $("regList").innerHTML=rc.length?'<div class="list">'+rowsGrouped(lugares(rc),rc[0].puntos||1)+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
+  $("regList").innerHTML=rc.length?'<div class="list">'+rc.map((c,i)=>row(c,i+1,rc[0].puntos||1)).join("")+'</div>':'<div class="empty" style="margin-top:0">Esta región todavía no tiene clubes de '+esc(AREAS[S.area])+'.</div>';
 }
 
 /* Navegación entre Áreas */
